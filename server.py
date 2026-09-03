@@ -2,9 +2,9 @@ from fastmcp import FastMCP
 from pathlib import Path
 from typing import List
 
-from langchain.vectors import FAISS
-from langchain.embeddings import OpenAIEmbeddings
-from lanchain.schema import Document
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_core.documents import Document
 
 # Init MCP Server
 mcp = FastMCP("Research Operations")
