@@ -1,10 +1,14 @@
 from fastmcp import FastMCP
 from pathlib import Path
 from typing import List
+import torch
 
 from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
+# from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_core.documents import Document
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Init MCP Server
 mcp = FastMCP("Research Operations")
@@ -21,8 +25,15 @@ def save_embeddings(documents: List[Document], path: str = "default") -> str:
     target_path = VECTOR_DB_ROOT / path
     target_path.mkdir(parents=True, exist_ok=True)
 
-    embeddings = OpenAIEmbeddings(model="test-embedding-small",
-                                  api_key="YOUR_OPENAI_API_KEY")
+    embeddings = HuggingFaceEmbeddings(
+        model_name="BAAI/bge-m3",
+        model_kwargs={"device": device},
+        encode_kwargs={
+            "normalize_embeddings": True
+        }
+    )
+    # embeddings = OpenAIEmbeddings(model="test-embedding-small",
+    #                               api_key="YOUR_OPENAI_API_KEY")
 
     documents = [Document(page_content=doc.page_content, metadata=doc.metadata) for doc in documents]
     index_file = target_path / "index.faiss"
@@ -53,8 +64,15 @@ def semantic_search(query: str, path: str = "default", k: int = 5) -> List[Docum
     if not index_file.exists():
         raise FileNotFoundError(f"No index found at {index_file}.") 
 
-    embeddings = OpenAIEmbeddings(model="test-embedding-small",
-                                  api_key="YOUR_OPENAI_API_KEY")
+    # embeddings = OpenAIEmbeddings(model="test-embedding-small",
+    #                               api_key="YOUR_OPENAI_API_KEY")
+    embeddings = HuggingFaceEmbeddings(
+        model_name="BAAI/bge-m3",
+        model_kwargs={"device": device},
+        encode_kwargs={
+            "normalize_embeddings": True
+        }
+    )
 
     vectorstore = FAISS.load_local(
         str(target_path), embeddings,
@@ -74,7 +92,7 @@ def available_prompts():
     return data
 
 
-@mcp.ressource("vector://list")
+@mcp.resource("vector://list")
 def list_vector_dbs() -> str:
     """
     Return a newline-separated list of available vector DBs (paths).
