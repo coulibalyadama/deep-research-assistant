@@ -40,12 +40,3 @@ Or run the main entry point:
 uv run main.py
 ```
 
-## Project Structure
-
-```
-├── main.py         # Entry point
-├── server.py       # MCP server for research operations
-├── client.py       # Agentic client with multi-server integration
-├── pyproject.toml  # Dependencies
-└── vector_dbs/     # Vector database storage (auto-created)
-```
